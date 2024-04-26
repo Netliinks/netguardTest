@@ -11,7 +11,7 @@ const firebaseApp = firebase.initializeApp({
     appId: "1:289160473467:web:2f208e0c101be51100abde",
     measurementId: "G-N34ECMV5Z2"
 });
-const originalUrl = "https://netliinks.github.io./netguard/";
+const originalUrl = "https://netliinks.github.io/netguardTest/";
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     // fcp_options.link field from the FCM backend service goes there, but as the host differ, it not handled by Firebase JS Client sdk, so custom handling
