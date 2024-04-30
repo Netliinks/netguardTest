@@ -90,6 +90,17 @@ export const exportVisitCsv = (ar, start, end) => {
         let visit = ar[i];
         // @ts-ignore
         //if (visit.creationDate >= start && visit.creationDate <= end) {
+            let diff = '';
+            if(visit?.type === "Cliente"){
+                if ((visit?.notificationDate ?? "" != "") && visit?.visitState?.name == 'Finalizado') {
+                    let horaSalida = new Date(`${visit?.egressDate ?? ''}T${visit?.egressTime ?? ''}`);
+                    let horaExpira = new Date(`${visit?.notificationDate ?? ''}T${visit?.notificationTime ?? ''}`);
+                    if (horaSalida.getTime() > horaExpira.getTime()) {
+                        diff = calcDates(horaExpira, horaSalida);
+                        //moreInfo = `Atraso ${diff.days} día(s) ${diff.hours} hora(s) ${diff.minutes} minuto(s) ${diff.seconds} segundo(s).`;
+                    }
+                }
+            }
             let obj = {
                 "Nombre": `${visit.firstName} ${visit.firstLastName} ${visit.secondLastName}`,
                 "DNI": `${visit.dni}`,
@@ -101,15 +112,19 @@ export const exportVisitCsv = (ar, start, end) => {
                 "Estado": `${visit.visitState?.name ?? ''}`,
                 "Verificado": `${visit.verifiedDocument ? 'Si' : 'No'}`,
                 "Favorita": `${visit.favorite ? 'Si' : 'No'}`,
-                "Teléfono": `${visit.phoneNumber}`,
-                "Autorizado": `${visit.authorizer}`,
-                "Fecha Ingreso": `${visit.ingressDate}`,
-                "Hora Ingreso": `${visit.ingressTime}`,
+                "Teléfono": `${visit?.phoneNumber ?? ''}`,
+                "Autorizado": `${visit?.authorizer ?? ''}`,
+                "Fecha Ingreso": `${visit?.ingressDate ?? ''}`,
+                "Hora Ingreso": `${visit?.ingressTime ?? ''}`,
                 "Emitido Ingreso": `${visit.ingressIssuedId?.firstName ?? ''} ${visit.ingressIssuedId?.lastName ?? ''}`,
                 "Fecha Salida": `${visit?.egressDate ?? ''}`,
                 "Hora Salida": `${visit?.egressTime ?? ''}`,
                 "Emitido Salida": `${visit.egressIssuedId?.firstName ?? ''} ${visit.egressIssuedId?.lastName ?? ''}`,
                 "Asunto": `${visit.reason.split("\n").join("(salto)")}`,
+                'Anotación':`${diff != '' ? 'Atraso' : ''}`,
+                'Días':`${diff?.days ?? ''}`,
+                'Horas':`${diff?.hours ?? ''}`,
+                'Minutos':`${diff?.minutes ?? ''}`
             };
             rows.push(obj);
         //}
@@ -122,6 +137,17 @@ export const exportVisitXls = (ar, start, end) => {
         let visit = ar[i];
         // @ts-ignore
         //if (visit.creationDate >= start && visit.creationDate <= end) {
+            let diff = '';
+            if(visit?.type === "Cliente"){
+                if ((visit?.notificationDate ?? "" != "") && visit?.visitState?.name == 'Finalizado') {
+                    let horaSalida = new Date(`${visit?.egressDate ?? ''}T${visit?.egressTime ?? ''}`);
+                    let horaExpira = new Date(`${visit?.notificationDate ?? ''}T${visit?.notificationTime ?? ''}`);
+                    if (horaSalida.getTime() > horaExpira.getTime()) {
+                        diff = calcDates(horaExpira, horaSalida);
+                        //moreInfo = `Atraso ${diff.days} día(s) ${diff.hours} hora(s) ${diff.minutes} minuto(s) ${diff.seconds} segundo(s).`;
+                    }
+                }
+            }
             let obj = {
                 "Nombre": `${visit.firstName} ${visit.firstLastName} ${visit.secondLastName}`,
                 "DNI": `${visit.dni}`,
@@ -133,15 +159,19 @@ export const exportVisitXls = (ar, start, end) => {
                 "Estado": `${visit.visitState?.name ?? ''}`,
                 "Verificado": `${visit.verifiedDocument ? 'Si' : 'No'}`,
                 "Favorita": `${visit.favorite ? 'Si' : 'No'}`,
-                "Teléfono": `${visit.phoneNumber}`,
-                "Autorizado": `${visit.authorizer}`,
-                "Fecha Ingreso": `${visit.ingressDate}`,
-                "Hora Ingreso": `${visit.ingressTime}`,
+                "Teléfono": `${visit?.phoneNumber ?? ''}`,
+                "Autorizado": `${visit?.authorizer ?? ''}`,
+                "Fecha Ingreso": `${visit?.ingressDate ?? ''}`,
+                "Hora Ingreso": `${visit?.ingressTime ?? ''}`,
                 "Emitido Ingreso": `${visit.ingressIssuedId?.firstName ?? ''} ${visit.ingressIssuedId?.lastName ?? ''}`,
                 "Fecha Salida": `${visit?.egressDate ?? ''}`,
                 "Hora Salida": `${visit?.egressTime ?? ''}`,
                 "Emitido Salida": `${visit.egressIssuedId?.firstName ?? ''} ${visit.egressIssuedId?.lastName ?? ''}`,
                 "Asunto": `${visit.reason.split("\n").join("(salto)")}`,
+                'Anotación':`${diff != '' ? 'Atraso' : ''}`,
+                'Días':`${diff?.days ?? ''}`,
+                'Horas':`${diff?.hours ?? ''}`,
+                'Minutos':`${diff?.minutes ?? ''}`
             };
             rows.push(obj);
         //}
@@ -250,4 +280,23 @@ const newDataBlock = (array, index) => {
 
 const splitText = (doc, field, lMargin, rMargin, pdfInMM) => {
     return doc.splitTextToSize(field, (pdfInMM - lMargin - rMargin));
+}
+
+function calcDates(date1, date2) {
+    date1 = new Date(date1);
+    date2 = new Date(date2);
+
+    var one_second = 1000;
+    var one_minute = 1000 * 60;
+    var one_hour = 1000 * 60 * 60;
+    var one_day = 1000 * 60 * 60 * 24;
+
+    var result = {
+        seconds: (Math.floor((date2 - date1) / one_second)) % 60,
+        minutes: Math.floor((date2 - date1) / one_minute) % 60,
+        hours: Math.floor((date2 - date1) / one_hour) % 24,
+        days: Math.floor((date2 - date1) / one_day)
+    };
+
+    return result;
 }
