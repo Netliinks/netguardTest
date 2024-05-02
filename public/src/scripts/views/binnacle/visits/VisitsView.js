@@ -336,7 +336,7 @@ export class Visits {
                 const visitCitadelID = document.getElementById('visit-citadelid');
                 visitCitadelID.value = entityData.citadel.name;
                 const visitDepartment = document.getElementById('visit-department');
-                visitDepartment.value = entityData.department.name;
+                visitDepartment.value = entityData?.department?.name ?? '';
                 //console.log(entityData.citadel.name);
                 // Start marking
                 const ingressDate = document.getElementById('ingress-date');
